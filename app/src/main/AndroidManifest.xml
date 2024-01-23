@@ -15,7 +15,10 @@
         android:theme="@style/Theme.Thelittleracetrackmobile"
         tools:targetApi="31">
         <activity
-            android:name=".DepositMoney"
+            android:name=".TutorialActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DepositActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
