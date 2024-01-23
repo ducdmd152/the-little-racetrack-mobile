@@ -1,4 +1,4 @@
-package com.mobilers.the_little_racetrack_mobile.service;
+package com.mobilers.the_little_racetrack_mobile.Service;
 
 public interface IDataService
 {

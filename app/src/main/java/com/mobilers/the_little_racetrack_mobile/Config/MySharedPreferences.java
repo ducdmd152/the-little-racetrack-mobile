@@ -1,10 +1,7 @@
-package com.mobilers.the_little_racetrack_mobile.config;
+package com.mobilers.the_little_racetrack_mobile.Config;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class MySharedPreferences {
     private static final String MY_SHARED_PREFERENCES = "UserData";

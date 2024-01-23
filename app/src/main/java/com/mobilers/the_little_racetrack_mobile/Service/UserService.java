@@ -1,12 +1,12 @@
-package com.mobilers.the_little_racetrack_mobile.service;
+package com.mobilers.the_little_racetrack_mobile.Service;
 
 import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.mobilers.the_little_racetrack_mobile.config.MySharedPreferences;
-import com.mobilers.the_little_racetrack_mobile.model.User;
+import com.mobilers.the_little_racetrack_mobile.Config.MySharedPreferences;
+import com.mobilers.the_little_racetrack_mobile.Model.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;

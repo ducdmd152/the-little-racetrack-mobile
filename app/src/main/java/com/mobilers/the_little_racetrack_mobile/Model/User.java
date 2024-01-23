@@ -1,4 +1,4 @@
-package com.mobilers.the_little_racetrack_mobile.model;
+package com.mobilers.the_little_racetrack_mobile.Model;
 
 public class User {
     private String username;
