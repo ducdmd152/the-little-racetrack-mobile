@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnStart;
     private Button btnAddMore;
     private Button btnTutorial;
+    private Button btnLogOut;
     private final String REQUIRE = "Require";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btnStart);
         btnAddMore = findViewById(R.id.btnAddMore);
         btnTutorial = findViewById(R.id.btnTutorial);
+        btnLogOut = findViewById(R.id.btnLogOut);
 
         LinearLayout option1 = findViewById(R.id.option1);
         LinearLayout option2 = findViewById(R.id.option2);
@@ -102,11 +104,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
             startActivity(intent);
         });
-//
-//        btnLogOut.setOnClickListener(v -> {
-//            Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
-//            startActivity(intent);
-//        });
+
+        btnLogOut.setOnClickListener(v -> {
+            GlobalData.getInstance().clearSession();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
 
         for (Car car : cars) {
             // Make seekbars unable to be changed when touching
@@ -255,8 +258,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkAuthenticated() {
         if (GlobalData.getInstance().isAuthenticated() == false) {
-//            Intent intent = new Intent(MainActivity.this, Login.class);
-//            startActivity(intent);
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
         }
     }
     private void checkExistBalance() {
