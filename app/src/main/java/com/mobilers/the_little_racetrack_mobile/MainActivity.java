@@ -21,6 +21,5 @@ public class MainActivity extends AppCompatActivity {
         globalData = GlobalData.getInstance();
         globalData.setCurrentUser("duyduc");
 
-
     }
 }
