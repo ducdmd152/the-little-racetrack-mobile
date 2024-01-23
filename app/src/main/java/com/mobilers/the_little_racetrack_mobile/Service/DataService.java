@@ -1,4 +1,4 @@
-package com.mobilers.the_little_racetrack_mobile.Service;
+package com.mobilers.the_little_racetrack_mobile.service;
 
 import android.content.Context;
 
