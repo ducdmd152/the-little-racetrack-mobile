@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Car> cars;
     private Button btnStart;
     private Button btnAddMore;
+    private Button btnTutorial;
     private final String REQUIRE = "Require";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
         dataService = new DataService(getApplicationContext());
         globalData = GlobalData.getInstance();
-
         // tmp code // wating for authentication
         globalData.setCurrentUser("duyduc");
         if (dataService.userExists("duyduc") == false) {
@@ -56,11 +56,13 @@ public class MainActivity extends AppCompatActivity {
         // pre-checking
         checkAuthenticated();
         checkExistBalance();
+
         // mapping
         txtUsername = findViewById(R.id.txtUsername);
         txtBalance = findViewById(R.id.txtBalance);
         btnStart = findViewById(R.id.btnStart);
         btnAddMore = findViewById(R.id.btnAddMore);
+        btnTutorial = findViewById(R.id.btnTutorial);
 
         LinearLayout option1 = findViewById(R.id.option1);
         LinearLayout option2 = findViewById(R.id.option2);
@@ -96,13 +98,13 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-//        btnTutorial.setOnClickListener(v -> {
-//            Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
-//            startActivity(intent);
-//        });
+        btnTutorial.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
+            startActivity(intent);
+        });
 //
 //        btnLogOut.setOnClickListener(v -> {
-//            Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
+//            Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
 //            startActivity(intent);
 //        });
 
