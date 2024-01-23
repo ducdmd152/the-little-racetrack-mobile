@@ -45,9 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
         dataService = new DataService(getApplicationContext());
         globalData = GlobalData.getInstance();
-        // pre-checking
-        checkAuthenticated();
-        checkExistBalance();
         // tmp code // wating for authentication
         globalData.setCurrentUser("duyduc");
         if (dataService.userExists("duyduc") == false) {
@@ -56,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
         }
         // end of ...
         username = globalData.getCurrentUser();
-
-
+        // pre-checking
+        checkAuthenticated();
+        checkExistBalance();
 
         // mapping
         txtUsername = findViewById(R.id.txtUsername);
