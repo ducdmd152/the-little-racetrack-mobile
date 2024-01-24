@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -37,10 +38,20 @@ public class MainActivity extends AppCompatActivity {
     private Button btnAddMore;
     private Button btnTutorial;
     private final String REQUIRE = "Require";
+
+    private MediaPlayer mediaPlayerWait,mediaplayerStart,mediaPlayerWin,mediaPlayerCheck;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //sound setting
+        mediaplayerStart = MediaPlayer.create(this, R.raw.racing1s);
+        mediaPlayerWait = MediaPlayer.create(this, R.raw.wait);
+        mediaPlayerWait.setLooping(true);
+        mediaPlayerWait.start();
+        mediaPlayerWin = MediaPlayer.create(this, R.raw.claps1s);
+//        mediaPlayerCheck=MediaPlayer.create(this,R.raw.checkbox);
 
         dataService = new DataService(getApplicationContext());
         globalData = GlobalData.getInstance();
@@ -115,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             car.getCheckBoxContainer().setOnTouchListener((v, event) -> {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+
                         break;
                     case MotionEvent.ACTION_UP:
                         checkBox.setChecked(!checkBox.isChecked());
@@ -123,12 +135,20 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             });
 
+
+
             checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 car.getEtAmountForCar().setEnabled(isChecked);
 //            if (isChecked && etAmountForCar1.getText().length() == 0)
 //                etAmountForCar1.setText("1"); // min = 1
+
                 updateBtnStartEnabled();
+                if (isChecked) {
+                    // Phát âm thanh khi ô đánh dấu được kiểm tra
+                    playCheckSound();
+                }
             });
+
         }
 
         btnStart.setOnClickListener(v -> {
@@ -140,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
             if (checkAmountOfBetting() == false) {
                 return;
             }
+            playStartSound();
 
             btnStart.setEnabled(false);
             for (Car car : cars) {
@@ -177,23 +198,31 @@ public class MainActivity extends AppCompatActivity {
 
             new Handler().postDelayed(() -> {
                 int changedAmount = 0;
+                boolean hasWinner = false;
                 if (rank1.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank1.getEtAmountForCar().getText().toString());
                     dataService.addBalance(username, betAmount);
                     changedAmount += betAmount;
+                    hasWinner = true;
+                    playWinSound();
                 }
 
                 if (rank2.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank2.getEtAmountForCar().getText().toString());
                     dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
+                    hasWinner = true;
+
                 }
 
                 if (rank3.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank3.getEtAmountForCar().getText().toString());
                     dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
+                    hasWinner = true;
+
                 }
+
 
                 txtBalance.setText("Balance: " + dataService.getBalance(username) + "$");
 
@@ -297,5 +326,21 @@ public class MainActivity extends AppCompatActivity {
 
         }
         return true;
+    }
+
+    private void playWinSound() {
+        mediaPlayerWin.start();
+    }
+    private void playStartSound() {
+        mediaplayerStart.start();
+    }
+
+
+    private void playCheckSound() {
+        mediaPlayerCheck=MediaPlayer.create(this,R.raw.checkbox);
+        mediaPlayerCheck.start();
+        mediaPlayerCheck.setOnCompletionListener(MediaPlayer::release);
+
+
     }
 }
