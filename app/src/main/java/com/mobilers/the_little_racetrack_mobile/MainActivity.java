@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private  IDataService dataService;
+    private IDataService dataService;
     private GlobalData globalData;
     private String username;
     private TextView txtUsername;
@@ -39,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnTutorial;
     private final String REQUIRE = "Require";
 
-    private MediaPlayer mediaPlayerWait,mediaplayerStart,mediaPlayerWin,mediaPlayerCheck;
+    private MediaPlayer mediaPlayerWait, mediaplayerStart, mediaPlayerWin, mediaPlayerCheck, mediaPlayerLoose;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayerWait.setLooping(true);
         mediaPlayerWait.start();
         mediaPlayerWin = MediaPlayer.create(this, R.raw.claps1s);
-//        mediaPlayerCheck=MediaPlayer.create(this,R.raw.checkbox);
+        mediaPlayerLoose = MediaPlayer.create(this, R.raw.loose);
+
 
         dataService = new DataService(getApplicationContext());
         globalData = GlobalData.getInstance();
@@ -88,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         SeekBar sbCar2 = findViewById(R.id.sbCar2);
         SeekBar sbCar3 = findViewById(R.id.sbCar3);
         cars = new ArrayList<>();
-        cars.add(new Car("Car 1", option1,  cbCar1, etAmountForCar1, sbCar1, null));
+        cars.add(new Car("Car 1", option1, cbCar1, etAmountForCar1, sbCar1, null));
         cars.add(new Car("Car 2", option2, cbCar2, etAmountForCar2, sbCar2, null));
         cars.add(new Car("Car 3", option3, cbCar3, etAmountForCar3, sbCar3, null));
 
@@ -136,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
 
-
             checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 car.getEtAmountForCar().setEnabled(isChecked);
 //            if (isChecked && etAmountForCar1.getText().length() == 0)
@@ -160,6 +161,10 @@ public class MainActivity extends AppCompatActivity {
             if (checkAmountOfBetting() == false) {
                 return;
             }
+
+            if (checkBalanceForBetting() == false) {
+                return;
+            }
             playStartSound();
 
             btnStart.setEnabled(false);
@@ -176,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
             Car rank3 = cars.get(2);
 
             animateProgression(100, 1000, findViewById(rank1.getSeekBar().getId()));
-            animateProgression(100, 1300,findViewById(rank2.getSeekBar().getId()));
+            animateProgression(100, 1300, findViewById(rank2.getSeekBar().getId()));
             animateProgression(100, 1500, findViewById(rank3.getSeekBar().getId()));
 
             new Handler().postDelayed(() -> {
@@ -198,20 +203,22 @@ public class MainActivity extends AppCompatActivity {
 
             new Handler().postDelayed(() -> {
                 int changedAmount = 0;
-                boolean hasWinner = false;
+                boolean atLeastOneWin = false;
                 if (rank1.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank1.getEtAmountForCar().getText().toString());
                     dataService.addBalance(username, betAmount);
                     changedAmount += betAmount;
-                    hasWinner = true;
                     playWinSound();
+                    atLeastOneWin = true;
                 }
 
                 if (rank2.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank2.getEtAmountForCar().getText().toString());
                     dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
-                    hasWinner = true;
+                    if (!atLeastOneWin) {
+                        playLooseSound(); // Chỉ gọi playLooseSound() nếu chưa có xe thắng
+                    }
 
                 }
 
@@ -219,7 +226,9 @@ public class MainActivity extends AppCompatActivity {
                     int betAmount = Integer.parseInt(rank3.getEtAmountForCar().getText().toString());
                     dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
-                    hasWinner = true;
+                    if (!atLeastOneWin) {
+                        playLooseSound(); // Chỉ gọi playLooseSound() nếu chưa có xe thắng
+                    }
 
                 }
 
@@ -288,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
 //            startActivity(intent);
         }
     }
+
     private void checkExistBalance() {
         if (dataService.getBalance(username) <= 0) {
             new AlertDialog.Builder(MainActivity.this)
@@ -314,8 +324,7 @@ public class MainActivity extends AppCompatActivity {
                 if (amountStr.isEmpty()) {
                     car.getEtAmountForCar().setError(REQUIRE);
                     return false;
-                }
-                else {
+                } else {
                     int amount = Integer.parseInt(amountStr);
                     if (amount < 1) {
                         Toast.makeText(this, "Please enter betting amount for " + car.getName().toLowerCase() + " equal to or greater than 1!", Toast.LENGTH_SHORT).show();
@@ -328,16 +337,49 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    private boolean checkBalanceForBetting() {
+        int totalBetAmount = 0;
+
+        for (Car car : cars) {
+            if (car.getCheckBox().isChecked()) {
+                String amountStr = car.getEtAmountForCar().getText().toString();
+
+                if (amountStr.isEmpty()) {
+                    car.getEtAmountForCar().setError(REQUIRE);
+                    return false;
+                } else {
+                    int amount = Integer.parseInt(amountStr);
+                    totalBetAmount += amount;
+                }
+            }
+        }
+
+        int currentBalance = (int) dataService.getBalance(username);
+
+        if (totalBetAmount > currentBalance) {
+            Toast.makeText(this, "Not enough balance for the total bet amount!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
+
     private void playWinSound() {
         mediaPlayerWin.start();
     }
+
+    private void playLooseSound() {
+        mediaPlayerLoose.start();
+    }
+
     private void playStartSound() {
         mediaplayerStart.start();
     }
 
 
     private void playCheckSound() {
-        mediaPlayerCheck=MediaPlayer.create(this,R.raw.checkbox);
+        mediaPlayerCheck = MediaPlayer.create(this, R.raw.checkbox);
         mediaPlayerCheck.start();
         mediaPlayerCheck.setOnCompletionListener(MediaPlayer::release);
 
