@@ -4,12 +4,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mobilers.the_little_racetrack_mobile.Constants.AuthenConstants;
+import com.mobilers.the_little_racetrack_mobile.Constants.DepositeContants;
 import com.mobilers.the_little_racetrack_mobile.Service.DataService;
 import com.mobilers.the_little_racetrack_mobile.Service.IDataService;
 import com.mobilers.the_little_racetrack_mobile.Service.UserService;
@@ -53,8 +56,10 @@ public class DepositActivity extends AppCompatActivity {
         btnHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(DepositActivity.this, MainActivity.class);
-                startActivity(intent);
+                Log.i("[deposite]", "::Here-Deposit::");
+                Intent resultIntent = new Intent();
+                setResult(DepositeContants.BACK_RESULT_CODE, resultIntent);
+                finish();
             }
         });
     }

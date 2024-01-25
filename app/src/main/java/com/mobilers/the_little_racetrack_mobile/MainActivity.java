@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobilers.the_little_racetrack_mobile.Constants.AuthenConstants;
+import com.mobilers.the_little_racetrack_mobile.Constants.DepositeContants;
 import com.mobilers.the_little_racetrack_mobile.Model.Car;
 import com.mobilers.the_little_racetrack_mobile.Service.DataService;
 import com.mobilers.the_little_racetrack_mobile.Service.IDataService;
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         if(globalData.isAuthenticated() == false) {
             initLoadingIntent();
         } else {
+            Log.i("[deposite]", "::Here-123::");
+
             // pre-checking
             preChecking();
 
@@ -73,14 +76,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         username = globalData.getCurrentUser();
+
+        Log.i("[deposite]", "::username::" + username);
+        Log.i("[deposite]", "::balance::" + userService.getBalance(globalData.getCurrentUser()) + "$");
+
         // init data
         txtUsername.setText("@" + globalData.getCurrentUser());
         txtBalance.setText("Balance: " + userService.getBalance(globalData.getCurrentUser()) + "$");
 
         // events
         btnAddMore.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, DepositActivity.class);
-            startActivity(intent);
+            Intent depositeIntent = new Intent(MainActivity.this, DepositActivity.class);
+            startActivityForResult(depositeIntent, DepositeContants.BACK_REQUEST_CODE);
         });
 
         btnTutorial.setOnClickListener(v -> {
@@ -284,8 +291,7 @@ public class MainActivity extends AppCompatActivity {
                     .setMessage("Please deposit more money to continue.")
                     .setPositiveButton("Deposit", (d, w) -> {
                         Intent intent = new Intent(MainActivity.this, DepositActivity.class);
-                        startActivity(intent);
-                        finish();
+                        startActivityForResult(intent, DepositeContants.BACK_REQUEST_CODE);
                     })
                     .setNegativeButton("Quit game", (d, w) -> {
                         finish();
@@ -340,6 +346,21 @@ public class MainActivity extends AppCompatActivity {
             reset();
         } else if (requestCode == AuthenConstants.LOADING_REQUEST_CODE && resultCode == AuthenConstants.LOADING_RESULT_CODE) {
             initLoginIntent();
+        } else if (requestCode == DepositeContants.BACK_REQUEST_CODE && resultCode == DepositeContants.BACK_RESULT_CODE) {
+            Log.i("[deposite]", "::Here::");
+
+            // init
+            init();
+            Log.i("[deposite]", "::init::");
+
+            // pre-checking
+            preChecking();
+            Log.i("[deposite]", "::preCheck::");
+
+            //reset
+            reset();
+            Log.i("[deposite]", "::reset::");
+
         }
     }
 }
