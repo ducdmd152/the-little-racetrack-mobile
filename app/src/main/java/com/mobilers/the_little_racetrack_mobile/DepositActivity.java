@@ -12,13 +12,14 @@ import android.widget.Toast;
 
 import com.mobilers.the_little_racetrack_mobile.Service.DataService;
 import com.mobilers.the_little_racetrack_mobile.Service.IDataService;
+import com.mobilers.the_little_racetrack_mobile.Service.UserService;
 
 public class DepositActivity extends AppCompatActivity {
     Button btnAdd;
     Button btnHome;
     EditText edtDepositNumnber;
     TextView textView2;
-    private IDataService dataService;
+    private UserService dataService;
     private GlobalData globalData;
 
     @Override
@@ -32,8 +33,7 @@ public class DepositActivity extends AppCompatActivity {
 
         // hiển thị số dư
         globalData = GlobalData.getInstance();
-        dataService = new DataService(getApplicationContext());
-        globalData.setCurrentUser("duyduc");
+        dataService = new UserService(getApplicationContext());
         textView2 = (TextView) findViewById(R.id.textView2);
         textView2.setText(dataService.getBalance(globalData.getCurrentUser()) + "$");
 
