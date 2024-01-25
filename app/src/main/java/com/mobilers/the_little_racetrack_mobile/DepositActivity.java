@@ -22,6 +22,7 @@ public class DepositActivity extends AppCompatActivity {
     Button btnHome;
     EditText edtDepositNumnber;
     TextView textView2;
+    TextView txtUsername;
     private UserService dataService;
     private GlobalData globalData;
 
@@ -37,6 +38,8 @@ public class DepositActivity extends AppCompatActivity {
         // hiển thị số dư
         globalData = GlobalData.getInstance();
         dataService = new UserService(getApplicationContext());
+        txtUsername = (TextView) findViewById(R.id.txtUsername);
+        txtUsername.setText("@" + globalData.getCurrentUser());
         textView2 = (TextView) findViewById(R.id.textView2);
         textView2.setText(dataService.getBalance(globalData.getCurrentUser()) + "$");
 
