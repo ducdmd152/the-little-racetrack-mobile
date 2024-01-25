@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="690dp"
+        android:layout_marginTop="590dp"
         android:progressDrawable="@drawable/custom_progress_main" />
 
     <ImageView
@@ -27,7 +27,7 @@
         android:layout_alignParentStart="true"
         android:layout_gravity="bottom"
         android:layout_marginStart="-65dp"
-        android:layout_marginTop="633dp"
+        android:layout_marginTop="533dp"
         android:layout_marginEnd="-230dp"
         android:src="@drawable/race_car_animated" />
 

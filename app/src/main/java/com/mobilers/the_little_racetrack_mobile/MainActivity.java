@@ -1,5 +1,6 @@
 package com.mobilers.the_little_racetrack_mobile;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.ObjectAnimator;
@@ -7,6 +8,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.animation.DecelerateInterpolator;
@@ -18,16 +20,19 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mobilers.the_little_racetrack_mobile.Constants.AuthenConstants;
 import com.mobilers.the_little_racetrack_mobile.Model.Car;
 import com.mobilers.the_little_racetrack_mobile.Service.DataService;
 import com.mobilers.the_little_racetrack_mobile.Service.IDataService;
+import com.mobilers.the_little_racetrack_mobile.Service.UserService;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private  IDataService dataService;
+//    private IDataService dataService;
+    private UserService userService;
     private GlobalData globalData;
     private String username;
     private TextView txtUsername;
@@ -38,60 +43,39 @@ public class MainActivity extends AppCompatActivity {
     private Button btnTutorial;
     private Button btnLogOut;
     private final String REQUIRE = "Require";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dataService = new DataService(getApplicationContext());
         globalData = GlobalData.getInstance();
-        // tmp code // wating for authentication
-        globalData.setCurrentUser("duyduc");
-        if (dataService.userExists("duyduc") == false) {
-            dataService.register("duyduc", "123456");
-            dataService.setBalance("duyduc", 1000);
-        }
-        // end of ...
-        username = globalData.getCurrentUser();
-        // pre-checking
-        checkAuthenticated();
-        checkExistBalance();
+//        dataService = new DataService(getApplicationContext());
+        userService = new UserService(getApplicationContext());
 
         // mapping
-        txtUsername = findViewById(R.id.txtUsername);
-        txtBalance = findViewById(R.id.txtBalance);
-        btnStart = findViewById(R.id.btnStart);
-        btnAddMore = findViewById(R.id.btnAddMore);
-        btnTutorial = findViewById(R.id.btnTutorial);
-        btnLogOut = findViewById(R.id.btnLogOut);
+        map();
 
-        LinearLayout option1 = findViewById(R.id.option1);
-        LinearLayout option2 = findViewById(R.id.option2);
-        LinearLayout option3 = findViewById(R.id.option3);
-        CheckBox cbCar1 = findViewById(R.id.cbCar1);
-        CheckBox cbCar2 = findViewById(R.id.cbCar2);
-        CheckBox cbCar3 = findViewById(R.id.cbCar3);
-        EditText etAmountForCar1 = findViewById(R.id.etAmountForCar1);
-        EditText etAmountForCar2 = findViewById(R.id.etAmountForCar2);
-        EditText etAmountForCar3 = findViewById(R.id.etAmountForCar3);
-        SeekBar sbCar1 = findViewById(R.id.sbCar1);
-        SeekBar sbCar2 = findViewById(R.id.sbCar2);
-        SeekBar sbCar3 = findViewById(R.id.sbCar3);
-        cars = new ArrayList<>();
-        cars.add(new Car("Car 1", option1,  cbCar1, etAmountForCar1, sbCar1, null));
-        cars.add(new Car("Car 2", option2, cbCar2, etAmountForCar2, sbCar2, null));
-        cars.add(new Car("Car 3", option3, cbCar3, etAmountForCar3, sbCar3, null));
+        // waiting for login page
+        if(globalData.isAuthenticated() == false) {
+            initLoadingIntent();
+        } else {
+            // pre-checking
+            preChecking();
 
+            // init
+            init();
 
-        // initing
-        init();
-        reset();
+            //reset
+            reset();
+        }
     }
 
     private void init() {
+        username = globalData.getCurrentUser();
         // init data
         txtUsername.setText("@" + globalData.getCurrentUser());
-        txtBalance.setText("Balance: " + dataService.getBalance(globalData.getCurrentUser()) + "$");
+        txtBalance.setText("Balance: " + userService.getBalance(globalData.getCurrentUser()) + "$");
 
         // events
         btnAddMore.setOnClickListener(v -> {
@@ -157,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             Car rank3 = cars.get(2);
 
             animateProgression(100, 1000, findViewById(rank1.getSeekBar().getId()));
-            animateProgression(100, 1300,findViewById(rank2.getSeekBar().getId()));
+            animateProgression(100, 1300, findViewById(rank2.getSeekBar().getId()));
             animateProgression(100, 1500, findViewById(rank3.getSeekBar().getId()));
 
             new Handler().postDelayed(() -> {
@@ -181,28 +165,28 @@ public class MainActivity extends AppCompatActivity {
                 int changedAmount = 0;
                 if (rank1.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank1.getEtAmountForCar().getText().toString());
-                    dataService.addBalance(username, betAmount);
+                    userService.addBalance(username, betAmount);
                     changedAmount += betAmount;
                 }
 
                 if (rank2.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank2.getEtAmountForCar().getText().toString());
-                    dataService.minusBalance(username, betAmount);
+                    userService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
                 }
 
                 if (rank3.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank3.getEtAmountForCar().getText().toString());
-                    dataService.minusBalance(username, betAmount);
+                    userService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
                 }
 
-                txtBalance.setText("Balance: " + dataService.getBalance(username) + "$");
+                txtBalance.setText("Balance: " + userService.getBalance(username) + "$");
 
                 // INFORMING
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                String message = (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + dataService.getBalance(username) + ".";
+                String message = (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + userService.getBalance(username) + ".";
 
                 TextView titleTextView = new TextView(MainActivity.this);
                 titleTextView.setText("Round done!");
@@ -227,6 +211,32 @@ public class MainActivity extends AppCompatActivity {
 
             }, 1600);
         });
+    }
+
+    private void map() {
+        txtUsername = findViewById(R.id.txtUsername);
+        txtBalance = findViewById(R.id.txtBalance);
+        btnStart = findViewById(R.id.btnStart);
+        btnAddMore = findViewById(R.id.btnAddMore);
+        btnTutorial = findViewById(R.id.btnTutorial);
+        btnLogOut = findViewById(R.id.btnLogOut);
+
+        LinearLayout option1 = findViewById(R.id.option1);
+        LinearLayout option2 = findViewById(R.id.option2);
+        LinearLayout option3 = findViewById(R.id.option3);
+        CheckBox cbCar1 = findViewById(R.id.cbCar1);
+        CheckBox cbCar2 = findViewById(R.id.cbCar2);
+        CheckBox cbCar3 = findViewById(R.id.cbCar3);
+        EditText etAmountForCar1 = findViewById(R.id.etAmountForCar1);
+        EditText etAmountForCar2 = findViewById(R.id.etAmountForCar2);
+        EditText etAmountForCar3 = findViewById(R.id.etAmountForCar3);
+        SeekBar sbCar1 = findViewById(R.id.sbCar1);
+        SeekBar sbCar2 = findViewById(R.id.sbCar2);
+        SeekBar sbCar3 = findViewById(R.id.sbCar3);
+        cars = new ArrayList<>();
+        cars.add(new Car("Car 1", option1, cbCar1, etAmountForCar1, sbCar1, null));
+        cars.add(new Car("Car 2", option2, cbCar2, etAmountForCar2, sbCar2, null));
+        cars.add(new Car("Car 3", option3, cbCar3, etAmountForCar3, sbCar3, null));
     }
 
     private void reset() {
@@ -261,8 +271,14 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
+    private void preChecking() {
+        checkAuthenticated();
+        checkExistBalance();
+    }
+
     private void checkExistBalance() {
-        if (dataService.getBalance(username) <= 0) {
+        if (userService.getBalance(username) <= 0) {
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("You are out of money!")
                     .setMessage("Please deposit more money to continue.")
@@ -287,8 +303,7 @@ public class MainActivity extends AppCompatActivity {
                 if (amountStr.isEmpty()) {
                     car.getEtAmountForCar().setError(REQUIRE);
                     return false;
-                }
-                else {
+                } else {
                     int amount = Integer.parseInt(amountStr);
                     if (amount < 1) {
                         Toast.makeText(this, "Please enter betting amount for " + car.getName().toLowerCase() + " equal to or greater than 1!", Toast.LENGTH_SHORT).show();
@@ -299,5 +314,32 @@ public class MainActivity extends AppCompatActivity {
 
         }
         return true;
+    }
+
+    private void initLoadingIntent() {
+        Intent loadingIntent = new Intent(getApplicationContext(), Loading.class);
+        startActivityForResult(loadingIntent, AuthenConstants.LOADING_REQUEST_CODE);
+    }
+
+    private void initLoginIntent() {
+        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivityForResult(loginIntent, AuthenConstants.LOGIN_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AuthenConstants.LOGIN_REQUEST_CODE && resultCode == AuthenConstants.LOGIN_RESULT_CODE) {
+            // init
+            init();
+
+            // pre-checking
+            preChecking();
+
+            //reset
+            reset();
+        } else if (requestCode == AuthenConstants.LOADING_REQUEST_CODE && resultCode == AuthenConstants.LOADING_RESULT_CODE) {
+            initLoginIntent();
+        }
     }
 }
