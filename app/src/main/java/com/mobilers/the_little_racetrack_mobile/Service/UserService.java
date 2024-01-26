@@ -26,6 +26,7 @@ public class UserService implements IDataService {
 
     @Override
     public boolean register(String username, String password) {
+
         username = username.trim().toLowerCase();
         List<User> listUsers = getListUsers();
 
@@ -35,7 +36,7 @@ public class UserService implements IDataService {
         }
 
         // Create a new instance of User for the new user
-        User newUser = new User(username, password, 0);
+        User newUser = new User(username, password, 1000);
 
         // Add the new user to the list
         listUsers.add(newUser);
@@ -115,7 +116,6 @@ public class UserService implements IDataService {
         for (User user : listUsers) {
             if (user.getUsername().equals(username)) {
                 // Return the balance for the specified user
-                Log.i("[balance]", "::Here:: " + username);
                 return user.getBalance();
             }
         }
