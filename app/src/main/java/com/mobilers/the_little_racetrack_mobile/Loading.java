@@ -7,6 +7,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +17,7 @@ import com.mobilers.the_little_racetrack_mobile.Constants.AuthenConstants;
 public class Loading extends AppCompatActivity {
     private ProgressBar progressBar;
     private int progressStatus = 0;
+    TextView percentLoad;
     private Handler handler = new Handler();
 
     @Override
@@ -29,12 +31,13 @@ public class Loading extends AppCompatActivity {
                 .into(icon_loading);
 
         progressBar = findViewById(R.id.progressBar);
+        percentLoad = findViewById(R.id.load);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
                 float screenWidth = displayMetrics.widthPixels;
-                while (progressStatus <101) {
+                while (progressStatus <100) {
                     float currentTranslationX = icon_loading.getTranslationX();
                     float newTranslationX = currentTranslationX + (0.01f * screenWidth);
                     icon_loading.setTranslationX(newTranslationX);
@@ -45,6 +48,7 @@ public class Loading extends AppCompatActivity {
                         @Override
                         public void run() {
                             progressBar.setProgress(progressStatus);
+                            percentLoad.setText(progressStatus + "%");
                             if(progressBar.getProgress() == 100) {
                                 Intent resultIntent = new Intent();
                                 setResult(AuthenConstants.LOADING_RESULT_CODE, resultIntent);

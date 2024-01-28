@@ -3,16 +3,16 @@
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">
             <corners android:radius="6dp"/>
-            <solid android:color="#B4E3B6"/>
+            <solid android:color="#B3E9EC"/>
         </shape>
 
     </item>
     <item android:id="@android:id/background">
         <scale android:scaleWidth="100%">
-        <shape android:shape="rectangle">
-            <corners android:radius="6dp"/>
-            <solid android:color="#2ADC32"/>
-        </shape>
+            <shape android:shape="rectangle">
+                <corners android:radius="6dp"/>
+                <solid android:color="#33B5B5"/>
+            </shape>
         </scale>
     </item>
 </layer-list>
