@@ -41,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 error.setVisibility(View.VISIBLE);
                 textResult.setText("Username or password invallid");
                 EditText txtUsername;
@@ -48,12 +49,13 @@ public class LoginActivity extends AppCompatActivity {
                 txtUsername = findViewById(R.id.username);
                 txtPassword = findViewById(R.id.password);
                 if (txtUsername.length()==0 || txtPassword.length() ==0){
-                    error.setVisibility(View.INVISIBLE);
+                    error.setVisibility(View.VISIBLE);
                     textResult.setText("username and password cannot be empty");
                 }
                 boolean checkLogin = userService.login(txtUsername.getText().toString()
                         , txtPassword.getText().toString());
                 if (checkLogin) {
+                    error.setVisibility(View.INVISIBLE);
                     String username = txtUsername.getText().toString();
                     globalData.setCurrentUser(username);
                     Intent resultIntent = new Intent();
