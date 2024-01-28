@@ -18,20 +18,37 @@
         android:orientation="vertical"
         android:padding="16dp" >
 
-
         <TextView
             android:id="@+id/test"
             android:layout_width="match_parent"
-            android:layout_height="256dp" />
-
-        <TextView
+            android:layout_height="197dp" />
+        <LinearLayout
             android:id="@+id/error_login"
             android:layout_width="389dp"
-            android:layout_height="37dp"
+            android:layout_height="68dp"
+            android:layout_marginTop="16dp"
             android:visibility="invisible"
-            android:textColor="#FF00"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="@color/white"
+                android:src="@drawable/out" />
+
+            <TextView
+                android:id="@+id/error_login_text"
+                android:layout_width="389dp"
+                android:layout_height="48dp"
+                android:background="@drawable/form_error"
+                android:textColor="#FF00"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
 
         <EditText
             android:id="@+id/username"
@@ -76,7 +93,6 @@
             android:id="@+id/CreateAccountButton"
             android:layout_width="match_parent"
             android:layout_height="59dp"
-            android:layout_marginTop="16dp"
             android:text="Creat new account" />
 
 
