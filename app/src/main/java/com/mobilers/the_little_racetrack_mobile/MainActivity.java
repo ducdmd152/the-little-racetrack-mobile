@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //sound setting
-        mediaplayerStart = MediaPlayer.create(this, R.raw.racing1s);
+        mediaplayerStart = MediaPlayer.create(this, R.raw.racing15);
         mediaPlayerWait = MediaPlayer.create(this, R.raw.wait);
         mediaPlayerWait.setLooping(true);
         mediaPlayerWait.start();
