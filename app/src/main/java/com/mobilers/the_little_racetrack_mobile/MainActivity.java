@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //sound setting
-        mediaplayerStart = MediaPlayer.create(this, R.raw.racing1s);
+        mediaplayerStart = MediaPlayer.create(this, R.raw.racing15);
         mediaPlayerWait = MediaPlayer.create(this, R.raw.wait);
         mediaPlayerWait.setLooping(true);
         mediaPlayerWait.start();
@@ -165,9 +165,9 @@ public class MainActivity extends AppCompatActivity {
             Car rank2 = cars.get(1);
             Car rank3 = cars.get(2);
 
-            animateProgression(100, 1000, findViewById(rank1.getSeekBar().getId()));
-            animateProgression(100, 1300, findViewById(rank2.getSeekBar().getId()));
-            animateProgression(100, 1500, findViewById(rank3.getSeekBar().getId()));
+            animateProgression(100, 1100, findViewById(rank1.getSeekBar().getId()));
+            animateProgression(100, 1500, findViewById(rank2.getSeekBar().getId()));
+            animateProgression(100, 1800, findViewById(rank3.getSeekBar().getId()));
 
             new Handler().postDelayed(() -> {
                 Toast.makeText(this, rank1.getName() + " is the 1st racer!", Toast.LENGTH_SHORT).show();
