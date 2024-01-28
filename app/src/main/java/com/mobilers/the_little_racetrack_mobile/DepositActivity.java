@@ -48,6 +48,9 @@ public class DepositActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (edtDepositNumnber.getText().toString().isEmpty() || edtDepositNumnber.getText().toString().equals("0")) {
                     Toast.makeText(getApplicationContext(), "Please enter a valid deposit amount", Toast.LENGTH_SHORT).show();
+                } else if (Long.parseLong(edtDepositNumnber.getText().toString()) + dataService.getBalance(globalData.getCurrentUser()) > 999999) {
+                    Toast.makeText(getApplicationContext(), "Balance cannot be more than 1000000", Toast.LENGTH_LONG).show();
+                    edtDepositNumnber.setText("");
                 } else {
                     dataService.addBalance(globalData.getCurrentUser(), Long.parseLong(edtDepositNumnber.getText().toString()));
                     textView2.setText(dataService.getBalance(globalData.getCurrentUser()) + "$");
