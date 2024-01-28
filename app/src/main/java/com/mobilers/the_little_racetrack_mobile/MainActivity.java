@@ -222,7 +222,11 @@ public class MainActivity extends AppCompatActivity {
                 // INFORMING
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                String message = (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + dataService.getBalance(username) + ".";
+                String message =
+                        rank1.getName() + " is the 1st racer!\n"
+                        + rank2.getName() + " is the 2nd racer!\n"
+                        + rank3.getName() + " is the 3rd racer!\n"
+                        + (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + dataService.getBalance(username) + ".";
 
                 TextView titleTextView = new TextView(MainActivity.this);
                 titleTextView.setText("Round done!");
@@ -242,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog alertDialog = builder.create();
                 new Handler().postDelayed(() -> {
                     alertDialog.show();
-                }, 700);
+                }, 1200);
 
 
             }, 1600);
