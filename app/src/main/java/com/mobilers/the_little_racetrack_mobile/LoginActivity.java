@@ -58,8 +58,8 @@ public class LoginActivity extends AppCompatActivity {
                     error.setVisibility(View.INVISIBLE);
                     String username = txtUsername.getText().toString();
                     globalData.setCurrentUser(username);
-                    Log.i("login", "user: " + globalData.getCurrentUser());
                     Intent resultIntent = new Intent();
+
                     setResult(AuthenConstants.LOGIN_RESULT_CODE, resultIntent);
                     finish();
                 }

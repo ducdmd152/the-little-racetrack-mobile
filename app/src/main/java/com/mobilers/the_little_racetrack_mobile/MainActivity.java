@@ -91,9 +91,6 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         username = globalData.getCurrentUser();
 
-        Log.i("[deposite]", "::username::" + username);
-        Log.i("[deposite]", "::balance::" + dataService.getBalance(globalData.getCurrentUser()) + "$");
-
         // init data
         txtUsername.setText("@" + globalData.getCurrentUser());
         txtBalance.setText("Balance: " + dataService.getBalance(globalData.getCurrentUser()) + "$");
@@ -111,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogOut.setOnClickListener(v -> {
             GlobalData.getInstance().clearSession();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
+            Intent logoutIntent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivityForResult(logoutIntent, AuthenConstants.LOGIN_REQUEST_CODE);
         });
 
         for (Car car : cars) {
@@ -372,6 +369,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AuthenConstants.LOGIN_REQUEST_CODE && resultCode == AuthenConstants.LOGIN_RESULT_CODE) {
+
             // init
             init();
 
@@ -383,20 +381,14 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == AuthenConstants.LOADING_REQUEST_CODE && resultCode == AuthenConstants.LOADING_RESULT_CODE) {
             initLoginIntent();
         } else if (requestCode == DepositeContants.BACK_REQUEST_CODE && resultCode == DepositeContants.BACK_RESULT_CODE) {
-            Log.i("[deposite]", "::Here::");
-
             // init
             init();
-            Log.i("[deposite]", "::init::");
 
             // pre-checking
             preChecking();
-            Log.i("[deposite]", "::preCheck::");
 
             //reset
             reset();
-            Log.i("[deposite]", "::reset::");
-
         }
     }
 
