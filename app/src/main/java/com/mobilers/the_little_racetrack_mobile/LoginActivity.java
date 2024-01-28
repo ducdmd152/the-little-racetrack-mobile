@@ -41,7 +41,6 @@ public class LoginActivity extends AppCompatActivity {
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 error.setVisibility(View.VISIBLE);
                 textResult.setText("Username or password invallid");
                 EditText txtUsername;
