@@ -153,9 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-//            if (checkBalanceForBetting() == false) {
-//                return;
-//            }
+
             playStartSound();
 
             btnStart.setEnabled(false);
@@ -339,6 +337,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkAmountOfBetting() {
+        if (!checkBalanceForTotalBetting(cars, username)) {
+            Toast.makeText(this, "Not enough balance for the total betting amount!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         for (Car car : cars) {
             if (car.getCheckBox().isChecked()) {
                 String amountStr = car.getEtAmountForCar().getText().toString();
@@ -347,13 +349,12 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 } else {
                     int amount = Integer.parseInt(amountStr);
-                    if (amount < 1) {
-                        Toast.makeText(this, "Please enter betting amount for " + car.getName().toLowerCase() + " equal to or greater than 1!", Toast.LENGTH_SHORT).show();
+                    if (amount < 1 || amount > 100000000) {
+                        Toast.makeText(this, "Please enter a betting amount for " + car.getName().toLowerCase() + " between 1 and 100,000,000!", Toast.LENGTH_SHORT).show();
                         return false;
                     }
                 }
             }
-
         }
         return true;
     }
@@ -400,33 +401,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private boolean checkBalanceForBetting() {
-//        int totalBetAmount = 0;
-//
-//        for (Car car : cars) {
-//            if (car.getCheckBox().isChecked()) {
-//                String amountStr = car.getEtAmountForCar().getText().toString();
-//
-//                if (amountStr.isEmpty()) {
-//                    car.getEtAmountForCar().setError(REQUIRE);
-//                    return false;
-//                } else {
-//                    int amount = Integer.parseInt(amountStr);
-//                    totalBetAmount += amount;
-//                }
-//            }
-//        }
-//
-//        int currentBalance = (int) dataService.getBalance(username);
-//
-//        if (totalBetAmount > currentBalance) {
-//            Toast.makeText(this, "Not enough balance for the total bet amount!", Toast.LENGTH_SHORT).show();
-//            return false;
-//        }
-//
-//        return true;
-//    }
 
+
+    public boolean checkBalanceForTotalBetting(List<Car> cars, String username) {
+        long totalBettingAmount = 0;
+
+        for (Car car : cars) {
+            if (car.getCheckBox().isChecked()) {
+                String amountStr = car.getEtAmountForCar().getText().toString();
+                if (amountStr.isEmpty()) {
+                    car.getEtAmountForCar().setError(REQUIRE);
+                    return false;
+                } else {
+                    long amount = Long.parseLong(amountStr);
+                    totalBettingAmount += amount;
+                }
+            }
+        }
+
+        long currentBalance = userService.getBalance(username);
+
+        return totalBettingAmount <= currentBalance;
+    }
 
     private void playWinSound() {
         mediaPlayerWin.start();
