@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -32,8 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-//    private IDataService dataService;
-    private UserService userService;
+    private IDataService dataService;
     private GlobalData globalData;
     private String username;
     private TextView txtUsername;
@@ -45,14 +46,27 @@ public class MainActivity extends AppCompatActivity {
     private Button btnLogOut;
     private final String REQUIRE = "Require";
 
+
+    private MediaPlayer mediaPlayerWait, mediaplayerStart, mediaPlayerWin, mediaPlayerCheck, mediaPlayerLoose;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //sound setting
+        mediaplayerStart = MediaPlayer.create(this, R.raw.racing15);
+        mediaPlayerWait = MediaPlayer.create(this, R.raw.wait);
+        mediaPlayerWait.setLooping(true);
+        mediaPlayerWait.start();
+        mediaPlayerWin = MediaPlayer.create(this, R.raw.claps1s);
+        mediaPlayerLoose = MediaPlayer.create(this, R.raw.loose);
+
+
+
         globalData = GlobalData.getInstance();
 //        dataService = new DataService(getApplicationContext());
-        userService = new UserService(getApplicationContext());
+        dataService = new UserService(getApplicationContext());
 
         // mapping
         map();
@@ -77,12 +91,9 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         username = globalData.getCurrentUser();
 
-        Log.i("[deposite]", "::username::" + username);
-        Log.i("[deposite]", "::balance::" + userService.getBalance(globalData.getCurrentUser()) + "$");
-
         // init data
         txtUsername.setText("@" + globalData.getCurrentUser());
-        txtBalance.setText("Balance: " + userService.getBalance(globalData.getCurrentUser()) + "$");
+        txtBalance.setText("Balance: " + dataService.getBalance(globalData.getCurrentUser()) + "$");
 
         // events
         btnAddMore.setOnClickListener(v -> {
@@ -97,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogOut.setOnClickListener(v -> {
             GlobalData.getInstance().clearSession();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
+            Intent logoutIntent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivityForResult(logoutIntent, AuthenConstants.LOGIN_REQUEST_CODE);
         });
 
         for (Car car : cars) {
@@ -121,6 +132,10 @@ public class MainActivity extends AppCompatActivity {
 //            if (isChecked && etAmountForCar1.getText().length() == 0)
 //                etAmountForCar1.setText("1"); // min = 1
                 updateBtnStartEnabled();
+                if (isChecked) {
+                    // Phát âm thanh khi ô đánh dấu được kiểm tra
+                    playCheckSound();
+                }
             });
         }
 
@@ -133,6 +148,9 @@ public class MainActivity extends AppCompatActivity {
             if (checkAmountOfBetting() == false) {
                 return;
             }
+
+
+            playStartSound();
 
             btnStart.setEnabled(false);
             for (Car car : cars) {
@@ -147,9 +165,9 @@ public class MainActivity extends AppCompatActivity {
             Car rank2 = cars.get(1);
             Car rank3 = cars.get(2);
 
-            animateProgression(100, 1000, findViewById(rank1.getSeekBar().getId()));
-            animateProgression(100, 1300, findViewById(rank2.getSeekBar().getId()));
-            animateProgression(100, 1500, findViewById(rank3.getSeekBar().getId()));
+            animateProgression(100, 1100, findViewById(rank1.getSeekBar().getId()));
+            animateProgression(100, 1500, findViewById(rank2.getSeekBar().getId()));
+            animateProgression(100, 1800, findViewById(rank3.getSeekBar().getId()));
 
             new Handler().postDelayed(() -> {
                 Toast.makeText(this, rank1.getName() + " is the 1st racer!", Toast.LENGTH_SHORT).show();
@@ -170,30 +188,41 @@ public class MainActivity extends AppCompatActivity {
 
             new Handler().postDelayed(() -> {
                 int changedAmount = 0;
+                boolean atLeastOneWin = false;
                 if (rank1.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank1.getEtAmountForCar().getText().toString());
-                    userService.addBalance(username, betAmount);
+                    dataService.addBalance(username, betAmount);
                     changedAmount += betAmount;
+                    playWinSound();
+                    atLeastOneWin = true;
                 }
 
                 if (rank2.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank2.getEtAmountForCar().getText().toString());
-                    userService.minusBalance(username, betAmount);
+                    dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
+                    if (!atLeastOneWin) {
+                        playLooseSound(); // Chỉ gọi playLooseSound() nếu chưa có xe thắng
+                    }
+
                 }
 
                 if (rank3.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank3.getEtAmountForCar().getText().toString());
-                    userService.minusBalance(username, betAmount);
+                    dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
+                    if (!atLeastOneWin) {
+                        playLooseSound(); // Chỉ gọi playLooseSound() nếu chưa có xe thắng
+                    }
+
                 }
 
-                txtBalance.setText("Balance: " + userService.getBalance(username) + "$");
+                txtBalance.setText("Balance: " + dataService.getBalance(username) + "$");
 
                 // INFORMING
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                String message = (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + userService.getBalance(username) + ".";
+                String message = (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + dataService.getBalance(username) + ".";
 
                 TextView titleTextView = new TextView(MainActivity.this);
                 titleTextView.setText("Round done!");
@@ -284,8 +313,9 @@ public class MainActivity extends AppCompatActivity {
         checkExistBalance();
     }
 
+
     private void checkExistBalance() {
-        if (userService.getBalance(username) <= 0) {
+        if (dataService.getBalance(username) <= 0) {
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("You are out of money!")
                     .setMessage("Please deposit more money to continue.")
@@ -303,6 +333,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkAmountOfBetting() {
+        if (!checkBalanceForTotalBetting(cars, username)) {
+            Toast.makeText(this, "Not enough balance for the total betting amount!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         for (Car car : cars) {
             if (car.getCheckBox().isChecked()) {
                 String amountStr = car.getEtAmountForCar().getText().toString();
@@ -311,13 +345,12 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 } else {
                     int amount = Integer.parseInt(amountStr);
-                    if (amount < 1) {
-                        Toast.makeText(this, "Please enter betting amount for " + car.getName().toLowerCase() + " equal to or greater than 1!", Toast.LENGTH_SHORT).show();
+                    if (amount < 1 || amount > 100000000) {
+                        Toast.makeText(this, "Please enter a betting amount for " + car.getName().toLowerCase() + " between 1 and 100,000,000!", Toast.LENGTH_SHORT).show();
                         return false;
                     }
                 }
             }
-
         }
         return true;
     }
@@ -336,6 +369,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AuthenConstants.LOGIN_REQUEST_CODE && resultCode == AuthenConstants.LOGIN_RESULT_CODE) {
+
             // init
             init();
 
@@ -347,20 +381,58 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == AuthenConstants.LOADING_REQUEST_CODE && resultCode == AuthenConstants.LOADING_RESULT_CODE) {
             initLoginIntent();
         } else if (requestCode == DepositeContants.BACK_REQUEST_CODE && resultCode == DepositeContants.BACK_RESULT_CODE) {
-            Log.i("[deposite]", "::Here::");
-
             // init
             init();
-            Log.i("[deposite]", "::init::");
 
             // pre-checking
             preChecking();
-            Log.i("[deposite]", "::preCheck::");
 
             //reset
             reset();
-            Log.i("[deposite]", "::reset::");
-
         }
+    }
+
+
+
+    public boolean checkBalanceForTotalBetting(List<Car> cars, String username) {
+        long totalBettingAmount = 0;
+
+        for (Car car : cars) {
+            if (car.getCheckBox().isChecked()) {
+                String amountStr = car.getEtAmountForCar().getText().toString();
+                if (amountStr.isEmpty()) {
+                    car.getEtAmountForCar().setError(REQUIRE);
+                    return false;
+                } else {
+                    long amount = Long.parseLong(amountStr);
+                    totalBettingAmount += amount;
+                }
+            }
+        }
+
+        long currentBalance = dataService.getBalance(username);
+
+        return totalBettingAmount <= currentBalance;
+    }
+
+    private void playWinSound() {
+        mediaPlayerWin.start();
+    }
+
+    private void playLooseSound() {
+        mediaPlayerLoose.start();
+    }
+
+    private void playStartSound() {
+        mediaplayerStart.start();
+    }
+
+
+    private void playCheckSound() {
+        mediaPlayerCheck = MediaPlayer.create(this, R.raw.checkbox);
+        mediaPlayerCheck.start();
+        mediaPlayerCheck.setOnCompletionListener(MediaPlayer::release);
+
+
     }
 }
