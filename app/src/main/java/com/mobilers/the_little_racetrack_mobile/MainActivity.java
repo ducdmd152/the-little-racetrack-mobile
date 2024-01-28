@@ -34,8 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-//    private IDataService dataService;
-    private UserService userService;
+    private IDataService dataService;
     private GlobalData globalData;
     private String username;
     private TextView txtUsername;
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         globalData = GlobalData.getInstance();
 //        dataService = new DataService(getApplicationContext());
-        userService = new UserService(getApplicationContext());
+        dataService = new UserService(getApplicationContext());
 
         // mapping
         map();
@@ -93,11 +92,11 @@ public class MainActivity extends AppCompatActivity {
         username = globalData.getCurrentUser();
 
         Log.i("[deposite]", "::username::" + username);
-        Log.i("[deposite]", "::balance::" + userService.getBalance(globalData.getCurrentUser()) + "$");
+        Log.i("[deposite]", "::balance::" + dataService.getBalance(globalData.getCurrentUser()) + "$");
 
         // init data
         txtUsername.setText("@" + globalData.getCurrentUser());
-        txtBalance.setText("Balance: " + userService.getBalance(globalData.getCurrentUser()) + "$");
+        txtBalance.setText("Balance: " + dataService.getBalance(globalData.getCurrentUser()) + "$");
 
         // events
         btnAddMore.setOnClickListener(v -> {
@@ -195,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean atLeastOneWin = false;
                 if (rank1.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank1.getEtAmountForCar().getText().toString());
-                    userService.addBalance(username, betAmount);
+                    dataService.addBalance(username, betAmount);
                     changedAmount += betAmount;
                     playWinSound();
                     atLeastOneWin = true;
@@ -203,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (rank2.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank2.getEtAmountForCar().getText().toString());
-                    userService.minusBalance(username, betAmount);
+                    dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
                     if (!atLeastOneWin) {
                         playLooseSound(); // Chỉ gọi playLooseSound() nếu chưa có xe thắng
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (rank3.getCheckBox().isChecked()) {
                     int betAmount = Integer.parseInt(rank3.getEtAmountForCar().getText().toString());
-                    userService.minusBalance(username, betAmount);
+                    dataService.minusBalance(username, betAmount);
                     changedAmount -= betAmount;
                     if (!atLeastOneWin) {
                         playLooseSound(); // Chỉ gọi playLooseSound() nếu chưa có xe thắng
@@ -221,12 +220,12 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                txtBalance.setText("Balance: " + userService.getBalance(username) + "$");
+                txtBalance.setText("Balance: " + dataService.getBalance(username) + "$");
 
                 // INFORMING
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                String message = (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + userService.getBalance(username) + ".";
+                String message = (changedAmount < 0 ? " - $" : " + $") + Math.abs(changedAmount) + "\nYour new balance is $" + dataService.getBalance(username) + ".";
 
                 TextView titleTextView = new TextView(MainActivity.this);
                 titleTextView.setText("Round done!");
@@ -319,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void checkExistBalance() {
-        if (userService.getBalance(username) <= 0) {
+        if (dataService.getBalance(username) <= 0) {
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("You are out of money!")
                     .setMessage("Please deposit more money to continue.")
@@ -419,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        long currentBalance = userService.getBalance(username);
+        long currentBalance = dataService.getBalance(username);
 
         return totalBettingAmount <= currentBalance;
     }
