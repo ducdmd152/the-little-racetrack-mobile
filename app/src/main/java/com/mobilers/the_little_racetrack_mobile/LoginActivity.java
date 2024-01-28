@@ -26,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView textResult;
     private GlobalData globalData;
     private UserService userService;
+    private LinearLayout error;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,23 +34,28 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         userService = new UserService(getApplicationContext());
         globalData = GlobalData.getInstance();
-
         btnregister = (Button) findViewById(R.id.CreateAccountButton);
         btnlogin = (Button) findViewById(R.id.loginButton);
-        textResult = findViewById(R.id.error_login);
+        textResult = findViewById(R.id.error_login_text);
+        error = findViewById(R.id.error_login);
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textResult.setVisibility(View.VISIBLE);
-                textResult.setText("!! Username or password invallid");
+
+                error.setVisibility(View.VISIBLE);
+                textResult.setText("Username or password invallid");
                 EditText txtUsername;
                 EditText txtPassword;
                 txtUsername = findViewById(R.id.username);
                 txtPassword = findViewById(R.id.password);
+                if (txtUsername.length()==0 || txtPassword.length() ==0){
+                    error.setVisibility(View.VISIBLE);
+                    textResult.setText("username and password cannot be empty");
+                }
                 boolean checkLogin = userService.login(txtUsername.getText().toString()
                         , txtPassword.getText().toString());
                 if (checkLogin) {
-                    textResult.setVisibility(View.INVISIBLE);
+                    error.setVisibility(View.INVISIBLE);
                     String username = txtUsername.getText().toString();
                     globalData.setCurrentUser(username);
                     Log.i("login", "user: " + globalData.getCurrentUser());
