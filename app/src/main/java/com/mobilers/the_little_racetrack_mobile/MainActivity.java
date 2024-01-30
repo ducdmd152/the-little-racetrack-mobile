@@ -337,15 +337,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkAmountOfBetting() {
-        if (!checkBalanceForTotalBetting(cars, username)) {
-            Toast.makeText(this, "Not enough balance for the total betting amount!", Toast.LENGTH_SHORT).show();
-            return false;
-        }
+//        if (!checkBalanceForTotalBetting(cars, username)) {
+//            Toast.makeText(this, "Not enough balance for the total betting amount!", Toast.LENGTH_SHORT).show();
+//            return false;
+//        }
         for (Car car : cars) {
             if (car.getCheckBox().isChecked()) {
                 String amountStr = car.getEtAmountForCar().getText().toString();
                 if (amountStr.isEmpty()) {
                     car.getEtAmountForCar().setError(REQUIRE);
+                    Toast.makeText(this, "Input valid amount for betting!", Toast.LENGTH_SHORT).show();
                     return false;
                 } else {
                     int amount = Integer.parseInt(amountStr);
